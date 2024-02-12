@@ -5,23 +5,25 @@ import ConfirmRegistrationCustomerIsCreateHandler from "../../customer/event/han
 import SendEmailWhenCustomerIsAlterHandler from "../../customer/event/handler/send-email-when-customer-is-alter.handler";
 import SendEmailWhenCustomerIsCreateHandler from "../../customer/event/handler/send-email-when-customer-is-create.handler";
 import Address from "../value-object/address";
+import Entity from "../../@shared/entity/entity.abstract";
+import NotificationError from "../../@shared/notification/notification.error";
 
-export default class Customer {
-    private _id: string;
+export default class Customer extends Entity {
+
     private _name: string = "";
     private _address!: Address;
     private _active: boolean = false;
     private _rewardPoints: number = 0;
 
     constructor(id: string, name: string) {
+      super();
       this._id = id;
       this._name = name;
       this.validate();
+      if(this.notification.hasErrors()){
+        throw new NotificationError(this.notification.getErrors());
+      }
       this.registerEventCreated("CustomerCreatedEvent");
-    }
-  
-    get id(): string {
-      return this._id;
     }
   
     get name(): string {
@@ -33,11 +35,17 @@ export default class Customer {
     }
   
     validate() {
-      if (this._id.length === 0) {
-        throw new Error("Id is required");
+      if (this.id.length === 0) {
+        this.notification.addError({
+          message: "Id is required",
+          context: "Customer"
+        });
       }
       if (this._name.length === 0) {
-        throw new Error("Name is required");
+        this.notification.addError({
+          message: "Name is required",
+          context: "Customer"
+        });
       }
     }
   
@@ -88,7 +96,7 @@ export default class Customer {
         name: eventName,
         data:{
             customer:{
-                id: this._id,
+                id: this.id,
                 name: this.name,
                 adress: this.Address
             }
@@ -105,7 +113,7 @@ export default class Customer {
       name: eventName,
       data:{
           customer:{
-              id: this._id,
+              id: this.id,
               name: this.name,
               adress: this.Address
           }
