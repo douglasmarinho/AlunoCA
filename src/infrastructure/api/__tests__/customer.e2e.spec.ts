@@ -82,5 +82,29 @@ describe("E2E test for customer", () => {
         expect(customers1.address.street).toBe("Street 1");
         expect(customers2.name).toBe("Teste 2");
         expect(customers2.address.street).toBe("Street 2");
+
+        const responseListXML= await request(app)
+            .get("/customer")
+            .set("Accept", "application/XML")
+            .send();
+        
+        expect(responseListXML.status).toBe(200);
+        expect(responseListXML.text).toContain(`<?xml version="1.0" encoding="UTF-8"?>`);
+        expect(responseListXML.text).toContain(`<customers>`);
+        expect(responseListXML.text).toContain(`<customer>`);
+        expect(responseListXML.text).toContain(`<name>Teste 1</name>`);
+        expect(responseListXML.text).toContain(`<address>`);
+        expect(responseListXML.text).toContain(`<street>Street 1</street>`);
+        expect(responseListXML.text).toContain(`<city>City 1</city>`);
+        expect(responseListXML.text).toContain(`<number>1</number>`);
+        expect(responseListXML.text).toContain(`<zip>12345678</zip>`);
+        expect(responseListXML.text).toContain(`</address>`);
+        expect(responseListXML.text).toContain(`</customer>`);
+        expect(responseListXML.text).toContain(`<name>Teste 2</name>`);
+        expect(responseListXML.text).toContain(`<street>Street 2</street>`);
+        expect(responseListXML.text).toContain(`<number>2</number>`);
+        expect(responseListXML.text).toContain(`<city>City 2</city>`);
+        expect(responseListXML.text).toContain(`<zip>87654321</zip>`);
+        expect(responseListXML.text).toContain(`</customers>`);
     });
 });
